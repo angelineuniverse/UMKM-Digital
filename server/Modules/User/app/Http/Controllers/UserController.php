@@ -24,7 +24,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        return $this->controller->responses('USER ALL', $this->mUserTab->all());
+        return $this->controller->responses('USER ALL', $this->mUserTab->where('isactive',1)->get());
     }
 
     /**
@@ -42,6 +42,7 @@ class UserController extends Controller
     {
         $this->controller->validasi($request, [
             'email' => 'required|email|max:50',
+            'm_access_tabs_id' => 'required',
             'password' => 'required|min:8',
         ]);
 
@@ -69,7 +70,7 @@ class UserController extends Controller
         $credentials = request(['email', 'password']);
 
         if (!Auth::attempt($credentials)) {
-            return $this->controller->responses('EMAIL/PASSWORD SALAH', null);
+            abort(401, 'Informasi akun yang anda masukan salah !');
         }
 
         $tokenResult = auth()->user()->createToken('Angeline-UMKM');
@@ -99,7 +100,22 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $this->controller->validasi($request, [
+            'email' => 'required|email|max:50',
+            'password' => 'required|min:8',
+        ]);
+
+        try {
+            DB::beginTransaction();
+            $request['password'] = Hash::make($request->password);
+            $user = $this->mUserTab->find($id);
+            $user->update($request->all());
+            DB::commit();
+            return $this->controller->responses('USER UPDATE', null);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            abort(400, $th->getMessage());
+        }
     }
 
     /**
@@ -107,6 +123,15 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        //
+        try {
+            DB::beginTransaction();
+            $user = $this->mUserTab->find($id);
+            $user->delete();
+            DB::commit();
+            return $this->controller->responses('USER DELETE', null);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            abort(400, $th->getMessage());
+        }
     }
 }

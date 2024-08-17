@@ -14,10 +14,13 @@ use Modules\User\Http\Controllers\UserController;
  *
 */
 
-Route::prefix('v1')->group(function () {
-    Route::post('user/register', [UserController::class,'store']);
-    Route::post('user/login', [UserController::class,'login']);
+Route::prefix('v1/user')->group(function () {
+    Route::post('register', [UserController::class,'store']);
+    Route::post('login', [UserController::class,'login']);
     Route::middleware('auth:sanctum')->group( function () {
-        Route::get('user', [UserController::class,'show']);
+        Route::get('show', [UserController::class,'show']);
+        Route::get('index', [UserController::class,'index']);
+        Route::post('update/{id}', [UserController::class,'update']);
+        Route::delete('delete/{id}', [UserController::class,'destroy']);
     });
 });
