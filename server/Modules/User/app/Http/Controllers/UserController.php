@@ -74,8 +74,12 @@ class UserController extends Controller
         }
 
         $tokenResult = auth()->user()->createToken('Angeline-UMKM');
-        return $this->controller->responses('LOGIN SUKSES', [
-            'token' => $tokenResult->plainTextToken
+        return $this->controller->responses('LOGIN SUKSES', 
+        [ 'token' => $tokenResult->plainTextToken ], 
+        [
+            'theme' => 'success',
+            'title' => 'Login berhasil !',
+            'body' => 'Selamat datang kembali di UMKM Digital',
         ]);
     }
 
@@ -133,5 +137,10 @@ class UserController extends Controller
             DB::rollBack();
             abort(400, $th->getMessage());
         }
+    }
+
+    public function logout(){
+        Auth::user()->tokens()->delete();
+        return $this->controller->responses('LOGOUT', null);
     }
 }

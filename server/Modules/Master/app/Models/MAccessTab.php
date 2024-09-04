@@ -15,8 +15,12 @@ class MAccessTab extends Model
      */
     protected $fillable = [];
 
-    protected static function newFactory(): MAccessTabFactory
+    protected static function newFactory()
     {
-        //return MAccessTabFactory::new();
+        // Create
+    }
+
+    public function access_menu(){
+        return $this->hasMany(MAccesMenuTab::class,'m_access_tabs_id','id');
     }
 }
