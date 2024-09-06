@@ -32,6 +32,16 @@ client.interceptors.response.use(
         return res;
     },
     function (err) {
+        if (err.response.status === 400) {
+            notification.show({
+                key: 'notif',
+                position: 'top-right',
+                theme: 'error',
+                title: 'Validation Error',
+                body: err.response?.data?.message,
+                duration: 5000
+            })
+        }
         Promise.reject(new Error(err));
     }
 );

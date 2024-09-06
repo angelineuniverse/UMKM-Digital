@@ -30,12 +30,26 @@ const Router = createBrowserRouter([
     {
         path: '/',
         async lazy() {
-            let Dashboard = await import('../layout/dashboard');
+            let Dashboard = await import('../layout/dashboard/index');
             return { Component: Dashboard.default };
         },
         async loader() {
             return authNotExist();
-        }
+        },
+        children: [
+            {
+                path: 'master',
+                children: [
+                    {
+                        path: 'menu',
+                        async lazy() {
+                            let Menu = await import('../layout/master/menu/index');
+                            return { Component: Menu.default };
+                        }
+                    },
+                ]
+            },
+        ]
     }
 ]);
 
