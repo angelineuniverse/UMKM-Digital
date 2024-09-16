@@ -26,12 +26,17 @@ class MenuController extends Controller
      */
     public function index()
     {
-        return $this->controller->responses('MENU ALL', 
+        return $this->controller->responsesList("MENU INDEX",
             $this->mMenuTab
             ->where('isactive',1)
             ->where('parent_id',0)
             ->with('children')
-            ->get()
+            ->paginate(10),
+            array(
+                [
+                    'key' => 'name', 'name' => "Nama Menu", 'type' => "string"
+                ]
+            )
         );
     }
 
@@ -40,7 +45,43 @@ class MenuController extends Controller
      */
     public function create()
     {
-        return view('master::create');
+        return $this->controller->responses(
+            'FORM MENU',
+            array(
+                [
+                    'key' => 'name', 
+                    'name' => null, 
+                    'type' => 'text', 
+                    'label' => 'Nama Menu', 
+                    'isRequired' => true,
+                    'placeholder' => "Tentukan Nama Menu",
+                ],
+                [
+                    'key' => 'url', 
+                    'url' => null, 
+                    'type' => 'text', 
+                    'label' => 'URL Menu', 
+                    'isRequired' => true,
+                    'placeholder' => "Tentukan URL Menu",
+                ],
+                [
+                    'key' => 'icon', 
+                    'icon' => null, 
+                    'type' => 'select', 
+                    'list' => [
+                        'keyValue' => 'id',
+                        'keyoption' => 'name',
+                        'options' => array(
+                            ['id' => 1 , 'name' => 'Beranda'],
+                            ['id' => 2 , 'name' => 'Akses'],
+                            ['id' => 3 , 'name' => 'Logout'],
+                        ),
+                    ],
+                    'label' => 'Icon Menu',
+                    'isRequired' => true,
+                ]
+            )
+        );
     }
 
     /**

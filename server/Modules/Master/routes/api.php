@@ -19,6 +19,7 @@ use Modules\Master\Http\Controllers\MenuController;
 Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
     Route::post('menu',[MenuController::class,'store']);
     Route::get('menu',[MenuController::class,'index']);
+    Route::get('menu:form',[MenuController::class,'create']);
     Route::post('menu/{id}',[MenuController::class,'update']);
 
     Route::prefix('menu:access')->group(function(){

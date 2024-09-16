@@ -21,4 +21,20 @@ class Controller
             'notif' => $notif,
         ]);
     }
+
+    public function responsesList($message, $data, $property, $notif = null){
+        return response()->json([
+            'message' => $message,
+            'column' => $property,
+            'data' => $data->getCollection(),
+            'property' => [
+                "total" => $data->total(),
+                "count" => $data->count(),
+                "per_page" => $data->perPage(),
+                "current_page" => $data->currentPage(),
+                "total_pages" => $data->lastPage(),
+            ], 
+            'notif' => $notif,
+        ]);
+    }
 }

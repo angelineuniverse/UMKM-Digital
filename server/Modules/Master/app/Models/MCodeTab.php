@@ -15,8 +15,4 @@ class MCodeTab extends Model
      */
     protected $fillable = [];
 
-    protected static function newFactory(): MCodeTabFactory
-    {
-        //return MCodeTabFactory::new();
-    }
 }

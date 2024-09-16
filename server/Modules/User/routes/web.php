@@ -13,3 +13,5 @@ use Modules\User\Http\Controllers\UserController;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+Route::get('user/email/activate/{token}', [UserController::class, 'activateAccount']);

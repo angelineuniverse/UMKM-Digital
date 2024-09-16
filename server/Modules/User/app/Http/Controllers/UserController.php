@@ -9,6 +9,9 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Laravel\Sanctum\PersonalAccessToken;
+use Modules\User\Emails\AuthRegister;
 use Modules\User\Models\MUserTab;
 
 class UserController extends Controller
@@ -52,9 +55,8 @@ class UserController extends Controller
             $users = $this->mUserTab->create($request->all());
             DB::commit();
             $tokens = $users->createToken('Angeline-UMKM');
-            return $this->controller->responses('USER CREATED', [
-                'token' => $tokens->plainTextToken
-            ]);
+            Mail::to($request->email)->send(new AuthRegister($users, $tokens->plainTextToken));
+            return $this->controller->responses('USER CREATED', $users);
         } catch (\Throwable $th) {
             DB::rollBack();
             abort(400, $th->getMessage());
@@ -71,6 +73,12 @@ class UserController extends Controller
 
         if (!Auth::attempt($credentials)) {
             abort(401, 'Informasi akun yang anda masukan salah !');
+        }
+
+        if ($this->mUserTab->where('email', $request->email)
+            ->where('isactive', 0)->first()
+        ) {
+            abort(400, "Akun anda belum diaktivasi");
         }
 
         $tokenResult = auth()->user()->createToken('Angeline-UMKM');
@@ -142,5 +150,20 @@ class UserController extends Controller
     public function logout(){
         Auth::user()->tokens()->delete();
         return $this->controller->responses('LOGOUT', null);
+    }
+
+    public function activateAccount($token)
+    {
+        $tokens = PersonalAccessToken::findToken($token);
+        $user = $tokens->tokenable;
+        if ($user) {
+            DB::beginTransaction();
+            $user->update([
+                'isactive' => 1,
+            ]);
+            DB::commit();
+            return view('user::emailactive');
+        }
+        abort(404, 'Token yang anda masukan salah');
     }
 }

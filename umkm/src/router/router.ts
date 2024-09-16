@@ -42,11 +42,23 @@ const Router = createBrowserRouter([
                 children: [
                     {
                         path: 'menu',
-                        async lazy() {
-                            let Menu = await import('../layout/master/menu/index');
-                            return { Component: Menu.default };
-                        }
-                    },
+                        children: [
+                            {
+                                path: '',
+                                async lazy() {
+                                    let Menu = await import('../layout/master/menu/index');
+                                    return { Component: Menu.default };
+                                }
+                            },
+                            {
+                                path: 'form',
+                                async lazy() {
+                                    let Form = await import('../layout/master/menu/form');
+                                    return { Component: Form.default };
+                                }
+                            }
+                        ]
+                    }
                 ]
             },
         ]

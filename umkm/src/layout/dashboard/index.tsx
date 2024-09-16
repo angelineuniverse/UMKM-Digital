@@ -49,7 +49,7 @@ class Dashboard extends Component<RouterInterface> {
             <div key={res?.id}>
               <div
                 aria-hidden="true"
-                className="flex justify-start mt-2 cursor-pointer w-full items-center"
+                className="flex gap-x-3 justify-start mt-3 cursor-pointer w-full items-center"
                 onClick={() => {
                   if (res?.children.length > 0) {
                     this.setState((prevState: any) => {
@@ -69,7 +69,10 @@ class Dashboard extends Component<RouterInterface> {
                   }
                 }}
               >
-                <p className="text-md mr-auto font-intersemibold">{res.name}</p>
+                <Icon icon={res.icon} height={20} width={20} color="#7F7F7F" />
+                <p className="md:text-[17px] text-base mr-auto font-intersemibold">
+                  {res.name}
+                </p>
                 {res?.show && res.children?.length > 0 && (
                   <Icon
                     icon="arrow_down"
@@ -92,18 +95,26 @@ class Dashboard extends Component<RouterInterface> {
                   <div
                     aria-hidden="true"
                     key={child.id}
-                    className="ml-3 cursor-pointer mt-2"
+                    className="ml-3 flex gap-x-3 items-center cursor-pointer mt-3"
                     onClick={() => {
                       this.props.navigate(res.url + child.url);
                     }}
                   >
-                    <p className="text-md font-intersemibold">{child?.name}</p>
+                    <Icon
+                      icon={child.icon}
+                      height={20}
+                      width={20}
+                      color="#7F7F7F"
+                    />
+                    <p className="md:text-[17px] text-base font-intersemibold">
+                      {child?.name}
+                    </p>
                   </div>
                 ))}
             </div>
           ))}
         </div>
-        <div className="sm:w-10/12 overflow-y-auto">
+        <div className="sm:w-10/12 overflow-y-auto p-7">
           <Outlet></Outlet>
         </div>
       </div>
