@@ -49,11 +49,23 @@ const Router = createBrowserRouter([
                                     let Menu = await import('../layout/master/menu/index');
                                     return { Component: Menu.default };
                                 }
+                            }
+                        ]
+                    },
+                    {
+                        path: 'pengguna',
+                        children: [
+                            {
+                                path: '',
+                                async lazy() {
+                                    let Pengguna = await import('../layout/master/pengguna/index');
+                                    return { Component: Pengguna.default };
+                                }
                             },
                             {
                                 path: 'form',
                                 async lazy() {
-                                    let Form = await import('../layout/master/menu/form');
+                                    let Form = await import('../layout/master/pengguna/form');
                                     return { Component: Form.default };
                                 }
                             }

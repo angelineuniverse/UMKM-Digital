@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Laravel\Sanctum\PersonalAccessToken;
+use Modules\Master\Models\MAccessTab;
 use Modules\User\Emails\AuthRegister;
 use Modules\User\Models\MUserTab;
 
@@ -18,9 +19,15 @@ class UserController extends Controller
 {
     protected $mUserTab;
     protected $controller;
-    public function __construct(MUserTab $mUserTab, Controller $controller) {
+    protected $mAccessTab;
+    public function __construct(
+        MUserTab $mUserTab,
+        Controller $controller,
+        MAccessTab $mAccessTab
+    ) {
         $this->mUserTab = $mUserTab;
         $this->controller = $controller;
+        $this->mAccessTab = $mAccessTab;
     }
     /**
      * Display a listing of the resource.
@@ -35,7 +42,39 @@ class UserController extends Controller
      */
     public function create()
     {
-        return view('user::create');
+        return $this->controller->responses(
+            "FORM USER",
+            array(
+                [
+                    "key" => "email",
+                    "email" => null,
+                    "type" => 'text',
+                    "label" => "Masukan Email",
+                    "placeholder" => "Masukan Email Aktif"
+                ],
+                [
+                    "key" => "password",
+                    "password" => null,
+                    "type" => 'password',
+                    "label" => "Masukan Password",
+                    "placeholder" => "Masukan password minimal 8 char",
+                    "isRequired" => true
+                ],
+                [
+                    "key" => "m_access_tabs_id",
+                    "m_access_tabs_id" => null,
+                    "type" => 'select',
+                    "label" => "Tentukan Akses",
+                    "placeholder" => "Pilih minimal 1 Akses",
+                    "isRequired" => true,
+                    "list" => [
+                        "keyValue" => "id",
+                        "keyoption" => "title",
+                        "options" => $this->mAccessTab->where('id', '>', 2)->get()
+                    ]
+                ],
+            )
+        );
     }
 
     /**
@@ -165,5 +204,30 @@ class UserController extends Controller
             return view('user::emailactive');
         }
         abort(404, 'Token yang anda masukan salah');
+    }
+
+    public function userList(Request $request)
+    {
+        return $this->controller->responsesList(
+            "PROFILE INDEX",
+            $this->mUserTab->with('mAccessTab')->paginate(10),
+            array(
+                [
+                    'key' => 'email',
+                    'name' => "Nama Email",
+                    'type' => "string"
+                ],
+                [
+                    'key' => 'status',
+                    'name' => "Status",
+                    'type' => "string"
+                ],
+                [
+                    'key' => 'action',
+                    'type' => "action",
+                    'ability' => ['SHOW', 'DELETE']
+                ],
+            )
+        );
     }
 }

@@ -21,7 +21,9 @@ Route::prefix('v1/user')->group(function () {
     Route::middleware('auth:sanctum')->group( function () {
         Route::get('logout', [UserController::class,'logout']);
         Route::get('show', [UserController::class,'show']);
+        Route::get('form', [UserController::class, 'create']);
         Route::get('index', [UserController::class,'index']);
+        Route::get('userlist', [UserController::class, 'userList']);
         Route::post('update/{id}', [UserController::class,'update']);
         Route::delete('delete/{id}', [UserController::class,'destroy']);
 

@@ -30,7 +30,6 @@ class Index extends Component<RouterInterface> {
   callIndex(page?: number) {
     menu_index().then((res) => {
       this.setState({ menu: res });
-      console.log(res, "response");
     });
   }
   render(): ReactNode {
@@ -39,11 +38,8 @@ class Index extends Component<RouterInterface> {
         <Table
           column={this.state.menu.column}
           title="Management Menu"
-          useCreate
+          useCreate={false}
           useHeadline
-          create={() => {
-            this.props.navigate("form");
-          }}
           data={this.state.menu!.data}
         />
       </div>

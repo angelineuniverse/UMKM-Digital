@@ -26,17 +26,13 @@ class MenuController extends Controller
      */
     public function index()
     {
-        return $this->controller->responsesList("MENU INDEX",
+        return $this->controller->responses(
+            "MENU INDEX",
             $this->mMenuTab
             ->where('isactive',1)
             ->where('parent_id',0)
             ->with('children')
-            ->paginate(10),
-            array(
-                [
-                    'key' => 'name', 'name' => "Nama Menu", 'type' => "string"
-                ]
-            )
+            ->get()
         );
     }
 
@@ -110,7 +106,34 @@ class MenuController extends Controller
      */
     public function show($id)
     {
-        return view('master::show');
+        return $this->controller->responsesList(
+            "MENU TABLE INDEX",
+            $this->mMenuTab
+                ->where('isactive', 1)
+                ->paginate(10),
+            array(
+                [
+                    'key' => 'name',
+                    'name' => "Nama Menu",
+                    'type' => "string"
+                ],
+                [
+                    'key' => 'parent',
+                    'name' => "Parent Menu",
+                    'type' => "string"
+                ],
+                [
+                    'key' => 'url',
+                    'name' => "URL page",
+                    'type' => "string"
+                ],
+                [
+                    'key' => 'action',
+                    'type' => 'action',
+                    'ability' => ['ADD']
+                ]
+            )
+        );
     }
 
     /**

@@ -1,5 +1,5 @@
 import { Component } from "react";
-import { Outlet } from "react-router-dom";
+import { NavLink, Outlet } from "react-router-dom";
 import { RouterInterface, withRouterInterface } from "../../router/interface";
 import { menu } from "./controller";
 import Skeleton from "../../component/skeleton/skeleton";
@@ -47,11 +47,32 @@ class Dashboard extends Component<RouterInterface> {
           )}
           {this.state.listMenu?.map((res) => (
             <div key={res?.id}>
-              <div
-                aria-hidden="true"
-                className="flex gap-x-3 justify-start mt-3 cursor-pointer w-full items-center"
-                onClick={() => {
-                  if (res?.children.length > 0) {
+              {res.children?.length < 1 && (
+                <NavLink to={res.url}>
+                  {({ isActive }) => (
+                    <div
+                      className={`${
+                        isActive ? "bg-gray-800 text-white" : ""
+                      } px-3 pt-1.5 pb-2 rounded-lg flex items-center gap-x-2 font-intermedium`}
+                    >
+                      <Icon
+                        icon={res.icon}
+                        height={20}
+                        width={20}
+                        color="#7F7F7F"
+                      />
+                      <p className="md:text-[17px] text-base mr-auto font-intersemibold">
+                        {res.name}
+                      </p>
+                    </div>
+                  )}
+                </NavLink>
+              )}
+              {res.children?.length > 0 && (
+                <div
+                  aria-hidden="true"
+                  className="flex gap-x-3 px-3 pt-1.5 pb-2 mt-2 justify-start cursor-pointer w-full items-center"
+                  onClick={() => {
                     this.setState((prevState: any) => {
                       return {
                         ...prevState,
@@ -64,52 +85,57 @@ class Dashboard extends Component<RouterInterface> {
                         }),
                       };
                     });
-                  } else {
-                    this.props.navigate(res.url);
-                  }
-                }}
-              >
-                <Icon icon={res.icon} height={20} width={20} color="#7F7F7F" />
-                <p className="md:text-[17px] text-base mr-auto font-intersemibold">
-                  {res.name}
-                </p>
-                {res?.show && res.children?.length > 0 && (
+                  }}
+                >
                   <Icon
-                    icon="arrow_down"
-                    className="my-auto"
-                    width={13}
-                    height={13}
-                  />
-                )}
-                {!res?.show && res.children?.length > 0 && (
-                  <Icon
-                    icon="arrow_left_simple"
-                    className="my-auto"
-                    width={20}
+                    icon={res.icon}
                     height={20}
+                    width={20}
+                    color="#7F7F7F"
                   />
-                )}
-              </div>
+                  <p className="md:text-[17px] text-base mr-auto font-intersemibold">
+                    {res.name}
+                  </p>
+                  {res?.show && res.children?.length > 0 && (
+                    <Icon
+                      icon="arrow_down"
+                      className="my-auto"
+                      width={13}
+                      height={13}
+                    />
+                  )}
+                  {!res?.show && res.children?.length > 0 && (
+                    <Icon
+                      icon="arrow_left_simple"
+                      className="my-auto"
+                      width={20}
+                      height={20}
+                    />
+                  )}
+                </div>
+              )}
               {res?.show &&
                 res.children?.map((child: any) => (
-                  <div
-                    aria-hidden="true"
-                    key={child.id}
-                    className="ml-3 flex gap-x-3 items-center cursor-pointer mt-3"
-                    onClick={() => {
-                      this.props.navigate(res.url + child.url);
-                    }}
-                  >
-                    <Icon
-                      icon={child.icon}
-                      height={20}
-                      width={20}
-                      color="#7F7F7F"
-                    />
-                    <p className="md:text-[17px] text-base font-intersemibold">
-                      {child?.name}
-                    </p>
-                  </div>
+                  <NavLink to={res.url + child.url}>
+                    {({ isActive }) => (
+                      <div
+                        key={child.id}
+                        className={`${
+                          isActive ? "bg-gray-800 text-white" : ""
+                        } mt-1.5 px-5 pt-1.5 pb-2 rounded-lg flex items-center gap-x-2 font-intermedium`}
+                      >
+                        <Icon
+                          icon={child.icon}
+                          height={20}
+                          width={20}
+                          color="#7F7F7F"
+                        />
+                        <p className="md:text-[17px] text-base font-intersemibold">
+                          {child?.name}
+                        </p>
+                      </div>
+                    )}
+                  </NavLink>
                 ))}
             </div>
           ))}

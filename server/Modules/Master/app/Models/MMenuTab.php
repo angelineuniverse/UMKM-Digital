@@ -22,8 +22,14 @@ class MMenuTab extends Model
     ];
 
     protected $appends = [
-        'show'
+        'show',
+        'parent'
     ];
+
+    public function getParentAttribute()
+    {
+        return $this->menuParent->name ?? null;
+    }
 
     public function getShowAttribute(){
         return false;
@@ -32,6 +38,11 @@ class MMenuTab extends Model
     protected static function newFactory()
     {
         // Create
+    }
+
+    public function menuParent()
+    {
+        return $this->hasOne(MMenuTab::class, 'id', 'parent_id');
     }
 
     public function children(){

@@ -21,6 +21,9 @@ class MUserTab extends Authenticatable
         'password',
         'isactive'
     ];
+    protected $appends = [
+        'status'
+    ];
     protected $hidden = [
         'password',
     ];
@@ -28,5 +31,19 @@ class MUserTab extends Authenticatable
     protected static function newFactory()
     {
         // Create
+    }
+
+    public function getStatusAttribute()
+    {
+        if ($this->isactive == 1) {
+            return 'ACTIVE';
+        } else {
+            return 'NOT ACTIVE';
+        }
+    }
+
+    public function mAccessTab()
+    {
+        return $this->hasOne(TAccesMenuUserTab::class, 'm_user_tabs_id', 'id');
     }
 }
