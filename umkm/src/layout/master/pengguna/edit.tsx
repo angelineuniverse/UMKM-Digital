@@ -7,10 +7,10 @@ import Form from "../../../component/form/form";
 import { FormProps } from "../../../component/form/model";
 import Icon from "../../../component/icon/icon";
 import Button from "../../../component/button/button";
-import { pengguna_form, pengguna_store } from "./controller";
+import { pengguna_form_edit, pengguna_update } from "./controller";
 import { mappingForm } from "../../../utils/helper";
 
-class FormData extends Component<RouterInterface> {
+class EditData extends Component<RouterInterface> {
   state: Readonly<{
     form: Array<FormProps> | undefined;
     loading: boolean;
@@ -22,7 +22,7 @@ class FormData extends Component<RouterInterface> {
       loading: false,
     };
     this.callForm = this.callForm.bind(this);
-    this.callSave = this.callSave.bind(this);
+    this.callUpdate = this.callUpdate.bind(this);
   }
 
   componentDidMount(): void {
@@ -30,18 +30,18 @@ class FormData extends Component<RouterInterface> {
   }
 
   callForm() {
-    return pengguna_form().then((res) => {
+    return pengguna_form_edit(this.props.params?.id).then((res) => {
       this.setState({
         form: res.data,
       });
     });
   }
-  callSave() {
+  callUpdate() {
     this.setState({
       loading: true,
     });
     const form = mappingForm(this.state.form);
-    return pengguna_store(form)
+    return pengguna_update(this.props.params?.id, form)
       .then((res) => {
         this.setState({
           loading: false,
@@ -72,7 +72,7 @@ class FormData extends Component<RouterInterface> {
             />
           </div>
           <div className="block">
-            <h1 className="font-interbold md:text-xl">Form Pengguna</h1>
+            <h1 className="font-interbold md:text-xl">Edit Pengguna</h1>
             <p className=" text-sm">
               Pastikan anda melengkapi semua input yang tersedia
             </p>
@@ -85,14 +85,14 @@ class FormData extends Component<RouterInterface> {
           classNameLoading="grid grid-cols-3 gap-4"
         ></Form>
         <Button
-          title="Simpan"
+          title="Ubah Data"
           className="mt-6"
           theme="primary"
           width="block"
           size="small"
           isLoading={this.state.loading}
           onClick={() => {
-            this.callSave();
+            this.callUpdate();
           }}
         />
       </div>
@@ -100,4 +100,4 @@ class FormData extends Component<RouterInterface> {
   }
 }
 
-export default withRouterInterface(FormData);
+export default withRouterInterface(EditData);

@@ -4,14 +4,16 @@ import {
   withRouterInterface,
 } from "../../../router/interface";
 import Table from "../../../component/table/table";
-import { pengguna_index } from "./controller";
+import { pengguna_index, pengguna_destroy } from "./controller";
 import Dialog from "../../../component/dialog/dialog";
+import Button from "../../../component/button/button";
 
 class Pengguna extends Component<RouterInterface> {
   state: Readonly<{
     pengguna: any;
-    modalShow: boolean;
-    detail: undefined;
+    modalDelete: boolean;
+    loading: boolean;
+    detail: any;
   }>;
 
   constructor(props: RouterInterface) {
@@ -21,7 +23,8 @@ class Pengguna extends Component<RouterInterface> {
         column: [],
         data: [],
       },
-      modalShow: false,
+      modalDelete: false,
+      loading: false,
       detail: undefined,
     };
     this.callIndex = this.callIndex.bind(this);
@@ -37,6 +40,18 @@ class Pengguna extends Component<RouterInterface> {
     });
   }
 
+  callDestroy() {
+    this.setState({ loading: true });
+    pengguna_destroy(this.state.detail?.id)
+      .then((res) => {
+        this.setState({ modalDelete: false, loading: false });
+        this.callIndex();
+      })
+      .catch((err) => {
+        this.setState({ loading: false });
+      });
+  }
+
   render(): ReactNode {
     return (
       <div>
@@ -50,25 +65,46 @@ class Pengguna extends Component<RouterInterface> {
             this.props.navigate("form");
           }}
           show={(event) => {
+            this.props.navigate("edit/" + event.id);
+          }}
+          delete={(event) => {
             this.setState({
               detail: event,
-              modalShow: true,
+              modalDelete: true,
             });
           }}
         />
         <Dialog
-          onOpen={this.state.modalShow}
+          onOpen={this.state.modalDelete}
+          size="small"
           onClose={() => {
             this.setState({
-              modalShow: false,
+              modalDelete: false,
             });
           }}
-          useHeading
-          size="medium"
-          title="Detail Pengguna"
           children={
             <>
-              <div>Disini Detail</div>
+              <div className="text-center w-fit">
+                <h1 className=" font-interbold mb-3 text-red-700 uppercase text-lg">
+                  Hapus Data
+                </h1>
+                <p className=" font-interregular">
+                  Apabila anda menghapus data maka seluruh informasi akan
+                  dihapus di system. data yang dihapus tidak bisa dipulihkan
+                  kembali
+                </p>
+                <Button
+                  className="mt-5"
+                  width="full"
+                  size="medium"
+                  title="Hapus Data"
+                  theme="error"
+                  isLoading={this.state.loading}
+                  onClick={() => {
+                    this.callDestroy();
+                  }}
+                />
+              </div>
             </>
           }
         />
