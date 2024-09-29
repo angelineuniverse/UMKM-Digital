@@ -34,7 +34,10 @@ class UserController extends Controller
      */
     public function index()
     {
-        return $this->controller->responses('USER ALL', $this->mUserTab->where('isactive',1)->get());
+        return $this->controller->responses(
+            'USER ALL',
+            $this->mUserTab->where('isactive', 1)->get()
+        );
     }
 
     /**
@@ -46,11 +49,20 @@ class UserController extends Controller
             "FORM USER",
             array(
                 [
+                    "key" => "name",
+                    "name" => null,
+                    "type" => 'text',
+                    "label" => "Masukan Nama",
+                    "placeholder" => "Masukan Nama",
+                    "isRequired" => true,
+                ],
+                [
                     "key" => "email",
                     "email" => null,
                     "type" => 'text',
                     "label" => "Masukan Email",
-                    "placeholder" => "Masukan Email Aktif"
+                    "placeholder" => "Masukan Email Aktif",
+                    "isRequired" => true,
                 ],
                 [
                     "key" => "password",
@@ -73,6 +85,13 @@ class UserController extends Controller
                         "options" => $this->mAccessTab->where('id', '>', 2)->get()
                     ]
                 ],
+                [
+                    "key" => "phone",
+                    "phone" => null,
+                    "type" => 'number',
+                    "label" => "Masukan No Whatsapp",
+                    "placeholder" => "Masukan No Whatsapp",
+                ],
             )
         );
     }
@@ -83,7 +102,8 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $this->controller->validasi($request, [
-            'email' => 'required|email|max:50',
+            'name' => 'required',
+            'email' => 'required|email|max:50|unique:m_user_tabs,email',
             'm_access_tabs_id' => 'required',
             'password' => 'required|min:8',
         ]);
@@ -95,7 +115,15 @@ class UserController extends Controller
             DB::commit();
             $tokens = $users->createToken('Angeline-UMKM');
             Mail::to($request->email)->send(new AuthRegister($users, $tokens->plainTextToken));
-            return $this->controller->responses('USER CREATED', $users);
+            return $this->controller->responses(
+                'USER CREATED',
+                $users,
+                [
+                    "title" => "Pengguna baru berhasil dibuat",
+                    "body" => "Informasi pengguna berhasil disimpan, periksa email untuk aktivasi akun",
+                    "theme" => 'success'
+                ]
+            );
         } catch (\Throwable $th) {
             DB::rollBack();
             abort(400, $th->getMessage());
@@ -111,7 +139,7 @@ class UserController extends Controller
         $credentials = request(['email', 'password']);
 
         if (!Auth::attempt($credentials)) {
-            abort(401, 'Informasi akun yang anda masukan salah !');
+            abort(400, 'Informasi akun yang anda masukan salah !');
         }
 
         if ($this->mUserTab->where('email', $request->email)
@@ -143,7 +171,48 @@ class UserController extends Controller
      */
     public function edit($id)
     {
-        return view('user::edit');
+        $user = $this->mUserTab->where('id', $id)->with('mAccessTab')->first();
+        return $this->controller->responses(
+            "FORM EDIT USER",
+            array(
+                [
+                    "key" => "name",
+                    "name" => $user->name,
+                    "type" => 'text',
+                    "label" => "Masukan Nama",
+                    "placeholder" => "Masukan Nama",
+                    "isRequired" => true,
+                ],
+                [
+                    "key" => "email",
+                    "email" => $user->email,
+                    "type" => 'text',
+                    "label" => "Masukan Email",
+                    "placeholder" => "Masukan Email Aktif",
+                    "isRequired" => true,
+                ],
+                [
+                    "key" => "m_access_tabs_id",
+                    "m_access_tabs_id" => $user->m_access_tabs_id,
+                    "type" => 'select',
+                    "label" => "Tentukan Akses",
+                    "placeholder" => $user->mAccessTab->title,
+                    "isRequired" => true,
+                    "list" => [
+                        "keyValue" => "id",
+                        "keyoption" => "title",
+                        "options" => $this->mAccessTab->where('id', '>', 2)->get()
+                    ]
+                ],
+                [
+                    "key" => "phone",
+                    "phone" => $user->phone,
+                    "type" => 'number',
+                    "label" => "Masukan No Whatsapp",
+                    "placeholder" => "Masukan No Whatsapp",
+                ],
+            )
+        );
     }
 
     /**
@@ -153,16 +222,20 @@ class UserController extends Controller
     {
         $this->controller->validasi($request, [
             'email' => 'required|email|max:50',
-            'password' => 'required|min:8',
+            'm_access_tabs_id' => 'required',
+            'name' => 'required',
         ]);
 
         try {
             DB::beginTransaction();
-            $request['password'] = Hash::make($request->password);
             $user = $this->mUserTab->find($id);
             $user->update($request->all());
             DB::commit();
-            return $this->controller->responses('USER UPDATE', null);
+            return $this->controller->responses('USER UPDATE', null, [
+                "title" => "Pengguna berhasil diupdate",
+                "body" => "Informasi pengguna berhasil diganti dan disimpan",
+                "theme" => 'success'
+            ]);
         } catch (\Throwable $th) {
             DB::rollBack();
             abort(400, $th->getMessage());
@@ -179,7 +252,11 @@ class UserController extends Controller
             $user = $this->mUserTab->find($id);
             $user->delete();
             DB::commit();
-            return $this->controller->responses('USER DELETE', null);
+            return $this->controller->responses('USER DELETE', null, [
+                "title" => "Pengguna berhasil dihapus",
+                "body" => "Informasi pengguna sepenuhnya dihapus dari system",
+                "theme" => 'success'
+            ]);
         } catch (\Throwable $th) {
             DB::rollBack();
             abort(400, $th->getMessage());
@@ -210,11 +287,30 @@ class UserController extends Controller
     {
         return $this->controller->responsesList(
             "PROFILE INDEX",
-            $this->mUserTab->with('mAccessTab')->paginate(10),
+            $this->mUserTab->where('id', '!=', auth()->user()->id)
+                ->with('mAccessTab')
+                ->paginate(10),
             array(
+                [
+                    'key' => 'name',
+                    'className' => 'font-interbold uppercase max-w-[50px]',
+                    'name' => "Nama Pengguna",
+                    'type' => "string"
+                ],
                 [
                     'key' => 'email',
                     'name' => "Nama Email",
+                    'className' => 'min-w-10 w-10 max-w-10',
+                    'type' => "string"
+                ],
+                [
+                    'key' => 'phone',
+                    'name' => "No Whatsapp",
+                    'type' => "string"
+                ],
+                [
+                    'key' => 'm_access_tab.title',
+                    'name' => "Akses",
                     'type' => "string"
                 ],
                 [

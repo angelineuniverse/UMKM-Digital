@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('m_user_tabs', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('m_access_tabs_id')->nullable();
+            $table->string('name', 50);
+            $table->string('phone', 14)->nullable();
             $table->string('email', 50);
             $table->string('password');
             $table->tinyInteger('isactive')->default(0)->comment('0 = not active, 1 = active');

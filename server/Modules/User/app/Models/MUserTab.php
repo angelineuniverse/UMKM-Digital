@@ -3,10 +3,10 @@
 namespace Modules\User\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Modules\User\Database\Factories\MUserTabFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Modules\Master\Models\MAccessTab;
 
 class MUserTab extends Authenticatable
 {
@@ -18,11 +18,14 @@ class MUserTab extends Authenticatable
     protected $fillable = [
         'm_access_tabs_id',
         'email',
+        'name',
+        'phone',
         'password',
         'isactive'
     ];
     protected $appends = [
-        'status'
+        'status',
+        'access_tab_title',
     ];
     protected $hidden = [
         'password',
@@ -31,6 +34,11 @@ class MUserTab extends Authenticatable
     protected static function newFactory()
     {
         // Create
+    }
+
+    public function getAccessTabTitleAttribute()
+    {
+        $this->mAccessTab->title;
     }
 
     public function getStatusAttribute()
@@ -43,6 +51,11 @@ class MUserTab extends Authenticatable
     }
 
     public function mAccessTab()
+    {
+        return $this->hasOne(MAccessTab::class, 'id', 'm_access_tabs_id');
+    }
+
+    public function tAccessMenuUserTab()
     {
         return $this->hasOne(TAccesMenuUserTab::class, 'm_user_tabs_id', 'id');
     }
